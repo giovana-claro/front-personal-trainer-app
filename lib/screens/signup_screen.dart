@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application/screens/signup_screen.dart';
+import 'package:flutter_application/screens/login_screen.dart';
 import 'package:flutter_application/utils/text_field_styles.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class SignupScreen extends StatefulWidget {
+  const SignupScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<SignupScreen> createState() => _SignupScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _SignupScreenState extends State<SignupScreen> {
   @override
   Widget build(BuildContext context) {
     TextEditingController emailController = TextEditingController();
     TextEditingController passwordController = TextEditingController();
+    TextEditingController confirmPasswordController = TextEditingController();
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 190, 243, 237),
@@ -23,14 +24,43 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              LoginTextField(
-                controller: emailController, 
-                labelText: "Email"
+              DropdownButtonFormField(
+                decoration: InputDecoration(
+                  labelText: "Tipo de cadastro",
+                  border: const OutlineInputBorder(),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: const BorderSide(
+                      color: Color.fromARGB(255, 7, 90, 80),
+                      width: 2.0,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: const BorderSide(
+                      color: Color.fromARGB(255, 18, 177, 177),
+                      width: 2.0,
+                    ),
+                  ),
+                ),
+                items:
+                    ["Personal", "Aluno"].map((role) {
+                      return DropdownMenuItem(value: role, child: Text(role));
+                    }).toList(),
+                onChanged: (String? newValue) {},
               ),
+              const SizedBox(height: 15),
+              LoginTextField(controller: emailController, labelText: "Email"),
               const SizedBox(height: 15),
               LoginTextField(
                 controller: passwordController,
                 labelText: "Senha",
+                obscureText: true,
+              ),
+              const SizedBox(height: 15),
+              LoginTextField(
+                controller: confirmPasswordController,
+                labelText: "Confirmar senha",
                 obscureText: true,
               ),
               const SizedBox(height: 15),
@@ -47,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   child: const Text(
-                    "Entrar",
+                    "Cadastrar",
                     style: TextStyle(
                       color: Color.fromARGB(255, 190, 243, 237),
                       fontWeight: FontWeight.bold,
@@ -61,7 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Ainda não tem uma conta? ",
+                    "Já possui uma conta? ",
                     style: TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
@@ -71,11 +101,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => SignupScreen()),
+                        MaterialPageRoute(builder: (_) => LoginScreen()),
                       );
                     },
                     child: Text(
-                      "Cadastre-se aqui",
+                      "Entre aqui",
                       style: TextStyle(
                         color: Color.fromARGB(255, 7, 90, 80),
                         fontWeight: FontWeight.bold,
