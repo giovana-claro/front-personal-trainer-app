@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application/screens/login_screen.dart';
+import 'package:flutter_application/utils/auth_service.dart';
 import 'package:flutter_application/utils/text_field_styles.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -15,6 +16,39 @@ class _SignupScreenState extends State<SignupScreen> {
     TextEditingController emailController = TextEditingController();
     TextEditingController passwordController = TextEditingController();
     TextEditingController confirmPasswordController = TextEditingController();
+    String selectedRole = "Aluno"; // Default selected role for signup
+
+    final AuthService authService = AuthService();
+
+    void signup() async {
+      String? result = await authService.signup(
+        email: emailController.text,
+        password: passwordController.text,
+        role: selectedRole,
+      );
+      if (result == null) {
+        // signup successfull: Navigate to Login screen
+        // ignore: use_build_context_synchronously
+        print("Entrou aqui");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Cadastro realizado com sucesso! Faça seu login."),
+          ),
+        );
+        Navigator.pushReplacement(
+          // ignore: use_build_context_synchronously
+          context,
+          MaterialPageRoute(builder: (_) => LoginScreen()),
+        );
+      } else {
+        // signup failed: Show error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Falha ao realizar o cadastro: $result"),
+          ),
+        );
+      }
+    }
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 190, 243, 237),
@@ -25,6 +59,7 @@ class _SignupScreenState extends State<SignupScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               DropdownButtonFormField(
+                value: selectedRole,
                 decoration: InputDecoration(
                   labelText: "Tipo de cadastro",
                   border: const OutlineInputBorder(),
@@ -47,7 +82,11 @@ class _SignupScreenState extends State<SignupScreen> {
                     ["Personal", "Aluno"].map((role) {
                       return DropdownMenuItem(value: role, child: Text(role));
                     }).toList(),
-                onChanged: (String? newValue) {},
+                onChanged: (String? newValue) {
+                  setState(() {
+                    selectedRole = newValue!;
+                  });
+                },
               ),
               const SizedBox(height: 15),
               LoginTextField(controller: emailController, labelText: "Email"),
@@ -67,7 +106,7 @@ class _SignupScreenState extends State<SignupScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: signup,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color.fromARGB(255, 7, 90, 80),
                     shape: RoundedRectangleBorder(
