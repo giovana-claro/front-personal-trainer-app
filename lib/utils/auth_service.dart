@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  // final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // Verify Password
   bool verifyPassword({
@@ -32,10 +32,10 @@ class AuthService {
           );
 
       // Save additional data to user
-      // await _firestore.collection("users").doc(userCredential.user!.uid).set({
-      //   "email": email.trim(),
-      //   "role": role,
-      // });
+      await _firestore.collection("users").doc(userCredential.user!.uid).set({
+        "email": email.trim(),
+        "role": role,
+      });
       return null;
     } catch (e) {
       return e.toString();
@@ -43,27 +43,27 @@ class AuthService {
   }
 
   // Login function
-  // Future<String?> login({
-  //   required String email,
-  //   required String password,
-  // }) async {
-  //   try {
-  //     // Login using email and password
-  //     UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-  //       email: email.trim(),
-  //       password: password.trim(),
-  //     );
+  Future<String?> login({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      // Login using email and password
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: email.trim(),
+        password: password.trim(),
+      );
 
-  //     // Fetch user's role
-  //     DocumentSnapshot userDoc =
-  //         await _firestore
-  //             .collection("users")
-  //             .doc(userCredential.user!.uid)
-  //             .get();
+      // Fetch user's role
+      DocumentSnapshot userDoc =
+          await _firestore
+              .collection("users")
+              .doc(userCredential.user!.uid)
+              .get();
 
-  //     return userDoc["role"];
-  //   } catch (e) {
-  //     return e.toString();
-  //   }
-  // }
+      return userDoc["role"];
+    } catch (e) {
+      return e.toString();
+    }
+  }
 }
