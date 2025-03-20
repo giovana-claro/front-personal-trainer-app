@@ -11,44 +11,65 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
+  bool isLoading = false;
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  TextEditingController confirmPasswordController = TextEditingController();
+  String selectedRole = "Aluno"; // Default selected role for signup
+
+  final AuthService authService = AuthService();
+
+  void signup() async {
+
+    bool verification = authService.verifyPassword(
+      password: passwordController.text,
+      confirmPassword: confirmPasswordController.text,
+    );
+
+    if (verification == false) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("As senhas informadas precisam ser iguais.")),
+      );
+      return null;
+    }
+
+    setState(() {
+      isLoading = true;
+    });
+
+    String? result = await authService.signup(
+      email: emailController.text,
+      password: passwordController.text,
+      role: selectedRole,
+    );
+
+    setState(() {
+      isLoading = false;
+    });
+
+    if (result == null) {
+      // signup successfull: Navigate to Login screen
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Cadastro realizado com sucesso! Faça seu login."),
+        ),
+      );
+      Navigator.pushReplacement(
+        // ignore: use_build_context_synchronously
+        context,
+        MaterialPageRoute(builder: (_) => LoginScreen()),
+      );
+    } else {
+      // signup failed: Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Falha ao realizar o cadastro: $result")),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    TextEditingController emailController = TextEditingController();
-    TextEditingController passwordController = TextEditingController();
-    TextEditingController confirmPasswordController = TextEditingController();
-    String selectedRole = "Aluno"; // Default selected role for signup
-
-    final AuthService authService = AuthService();
-
-    void signup() async {
-      String? result = await authService.signup(
-        email: emailController.text,
-        password: passwordController.text,
-        role: selectedRole,
-      );
-      if (result == null) {
-        // signup successfull: Navigate to Login screen
-        // ignore: use_build_context_synchronously
-        print("Entrou aqui");
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Cadastro realizado com sucesso! Faça seu login."),
-          ),
-        );
-        Navigator.pushReplacement(
-          // ignore: use_build_context_synchronously
-          context,
-          MaterialPageRoute(builder: (_) => LoginScreen()),
-        );
-      } else {
-        // signup failed: Show error message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Falha ao realizar o cadastro: $result"),
-          ),
-        );
-      }
-    }
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 190, 243, 237),
@@ -103,28 +124,34 @@ class _SignupScreenState extends State<SignupScreen> {
                 obscureText: true,
               ),
               const SizedBox(height: 15),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: signup,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromARGB(255, 7, 90, 80),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                        5,
-                      ), // Sem bordas arredondadas
+              isLoading
+                  ? const Center(
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Color.fromARGB(255, 7, 90, 80)),
+                    ),
+                  )
+                  : SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: signup,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color.fromARGB(255, 7, 90, 80),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                            5,
+                          ), // Sem bordas arredondadas
+                        ),
+                      ),
+                      child: const Text(
+                        "Cadastrar",
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 190, 243, 237),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
                     ),
                   ),
-                  child: const Text(
-                    "Cadastrar",
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 190, 243, 237),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                    ),
-                  ),
-                ),
-              ),
               const SizedBox(height: 15),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
